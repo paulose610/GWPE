@@ -1,0 +1,12 @@
+# .gitignore
+
+# Ignore virtual environment folders
+btpenv/
+__pychache__/
+
+
+# Ignore compiled Python files
+*.pyc
+*.pyo
+*.pyd
+
