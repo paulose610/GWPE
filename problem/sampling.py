@@ -4,19 +4,17 @@ import joblib
 
 pi=np.pi
 
-#getval input:a,f,phi,starting point,endingpoint,stepsize
-def getval(a,f,phi,sp,ep,ss):
+#getval input:a,f,phi,starting point,endingpoint,no. of steps
+def getval(a,f,phi,sp,ep,n):
     a=a
     f=f
     phi=phi
-    t=np.arange(sp,ep,ss)
+    t=np.linspace(sp,ep,n)
     return a,f,phi,t
 
-def w(f):
-    return 2*pi*f
-
-def sig(w,phi,a,t):
-    return a*np.sin((w*t+phi)%2*pi)
+def sig(f,phi,a,t):
+    return a*np.sin(2*np.pi*f*t+phi)
+    #return a*np.sin((w*t+phi)%2*pi)
 
 def noise(m,std,n):
     return np.random.normal(m,std,n)
@@ -32,18 +30,18 @@ P(f)=U[5,75]
 def randomparams(n):
     arr_a,arr_f,arr_phi=[],[],[]
     for i in range(n):
-        arr_a.append(np.random.randint(0,15))
+        arr_a.append(np.random.uniform(0,10))
         arr_phi.append(np.random.uniform(0,2*pi))
-        arr_f.append(np.random.randint(5,75))
+        arr_f.append(np.random.uniform(1,10))
     return arr_a,arr_phi,arr_f
 
 def randomsignals(arr_f,arr_phi,arr_a,t):
     arr_s=[]
     for i in range(len(arr_f)):
-        w1=w(arr_f[i])
-        arr_s.append(sig(w1,arr_phi[i],arr_a[i],t))
+        arr_s.append(sig(arr_f[i],arr_phi[i],arr_a[i],t))
     np.array(arr_s)    
     return arr_s
+
 
 def lh(d,s,std,n):
     lha=[]
@@ -56,11 +54,10 @@ def lh(d,s,std,n):
     return np.array(lha)    
 
 def newsamplelikelihood(d,t,std):
-       a=np.random.randint(0,15)
+       a=np.random.uniform(0,10)
        phi=np.random.uniform(0,2*pi)
-       f=np.random.randint(0,50)
-       wc=w(f)
-       newsig=sig(wc,phi,a,t)
+       f=np.random.uniform(1,10)
+       newsig=sig(f,phi,a,t)
        n1=len(t)
        nlh=(-n1/2)*np.log(2*pi*(std**2))-(np.sum((d-newsig)**2)/(2*(std**2)))
        return a,phi,f,nlh
@@ -138,24 +135,28 @@ def nestedsampling(arr,d,t,std,arr_a,arr_phi,arr_f):
     return dlh,da,dphi,df   
 
 
-a,f,phi,t=getval(8,25,pi/3,0,2,0.1)
+a,f,phi,t=getval(2,5,0,0,4,1000)
 
-wc=w(f)
+injsig=sig(f,phi,a,t)
 
-injsig=sig(wc,phi,a,t)
-
-injn=noise(0,2,len(t))
+injn=noise(0,4,len(t))
 
 d=injsig+injn
+plt.plot(t,d, label='data')
+plt.plot(t, injsig, label='signal')
+plt.grid()
+plt.xlabel('time')
+plt.ylabel('data/signal')
+plt.legend()
+plt.show()
 
 arr_a,arr_phi,arr_f=randomparams(50)
 
 arr_s=randomsignals(arr_f,arr_phi,arr_a,t)
-       
+      
 nn=lh(d,arr_s,2,len(arr_a))
-print(nn)
 
 nss,arr_a,arr_phi,arr_f=nestedsampling(nn,d,t,2,arr_a,arr_phi,arr_f)
 print("\n",nss)
-
+#nss=np.e**nss
 joblib.dump((arr_a, arr_f, arr_phi, nss), "var")   
