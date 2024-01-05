@@ -1,7 +1,9 @@
 import corner
 import matplotlib.pyplot as plt
 import numpy as np
-from p import nss,arr_a,arr_phi,arr_f
+import joblib
+
+arr_a, arr_f, arr_phi, nss = joblib.load("var")
 
 def corplot(l,a,b,c):
 

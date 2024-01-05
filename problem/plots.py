@@ -1,12 +1,17 @@
 import matplotlib.pyplot as plt
+import joblib
 
-from p import nss, arr_a, arr_phi, arr_f
+arr_a, arr_f, arr_phi, nss = joblib.load("var")
 
-def plotter(x, y, xl):
-    plt.scatter(x, y)
-    plt.xlabel(xl)
+def plotter(x, y, z, a):
+    figure, axis = plt.subplots(3, 1)
+    axis[0].scatter(x, a)
+    axis[0].set_xlabel("Amplitude")
+    axis[1].scatter(y, a)
+    axis[1].set_xlabel("Frequency")
+    axis[2].scatter(z, a)
+    axis[2].set_xlabel("Phase")
+    plt.tight_layout()
     plt.show()
 
-plotter(arr_a, nss, "Amplitude")
-plotter(arr_f, nss, "Frequency")
-plotter(arr_phi, nss, "Phase")
+plotter(arr_a, arr_f, arr_phi,nss)

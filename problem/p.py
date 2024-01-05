@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import joblib
 
 pi=np.pi
 
@@ -157,4 +158,4 @@ print(nn)
 nss,arr_a,arr_phi,arr_f=nestedsampling(nn,d,t,2,arr_a,arr_phi,arr_f)
 print("\n",nss)
 
-nss,arr_a,arr_phi,arr_f=nss,arr_a,arr_phi,arr_f    
+joblib.dump((arr_a, arr_f, arr_phi, nss), "var")   
