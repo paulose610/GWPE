@@ -26,15 +26,18 @@ P(f)=U[1,10]
 '''
 
 def randomparam(n):
-    arr_a=np.random.uniform(0,10,n).reshape(-1,1)
+    #arr_a=np.random.uniform(1,10,n).reshape(-1,1)
+    arr_a=3
     arr_phi=np.random.uniform(0,2*pi,n).reshape(-1,1)
+    #arr_phi=0
     arr_f=np.random.uniform(1,10,n).reshape(-1,1)
-    return arr_a,arr_phi,arr_f
+    #arr_f=4
+    return arr_phi,arr_f
 
 def randomsignalarr(n,t):
-    arr_a,arr_phi,arr_f=randomparam(n)
-    arr_sig=signal(arr_a,arr_phi,arr_f,t)
-    return np.concatenate((arr_a,arr_phi,arr_f,arr_sig),axis=1),arr_a,arr_phi,arr_f
+    arr_phi,arr_f=randomparam(n)
+    arr_sig=signal(3,arr_phi,arr_f,t)
+    return np.concatenate((arr_phi,arr_f,arr_sig),axis=1),arr_phi,arr_f
 
 def likelihood(datastrain,signal,std):
     l=len(datastrain)
@@ -44,17 +47,20 @@ def likelihood(datastrain,signal,std):
 def likelihoodarr(datastrain,signalarr,std):
     lha=[]
     for i in range(signalarr.shape[0]):
-        lha.append(likelihood(datastrain,signalarr[i][3:],std))
+        lha.append(likelihood(datastrain,signalarr[i][2:],std))
     lha=np.array(lha).reshape(-1,1)
     return np.concatenate((signalarr,lha),axis=1)
 
 def newsignalarr(d,t,std):
-    a=np.random.uniform(0,10)
+    #a=np.random.uniform(1,10)
+    a=3
     phi=np.random.uniform(0,2*pi)
+    #phi=pi
     f=np.random.uniform(1,10)
+    #f=4
     newsig = signal(a,phi,f,t)
-    rsarr=np.concatenate((np.array([a,phi,f]),newsig,[likelihood(d,newsig,std)]),axis=0)
-    return rsarr
+    nsarr=np.concatenate((np.array([phi,f]),newsig,[likelihood(d,newsig,std)]),axis=0)
+    return nsarr
 
 
 #sampling
@@ -63,7 +69,7 @@ def lowestlh(lha):
 
 def checkchange(new,old,checkarr):
     checkarr=np.delete(checkarr,0)
-    if abs(new-old)<=0.075: 
+    if abs(new-old)<=0.1: 
         checkarr=np.append(checkarr,0)
     else:  
         checkarr=np.append(checkarr,1)  
@@ -84,7 +90,7 @@ def nestedsampling(lha,data,std,t):
     cond=True
     n=0
     
-    while(cond and n<1500):
+    while(cond and n<1000):
         arg=lowestlh(lha)
         nsarr=newsignalarr(data,t,std)
         
@@ -102,8 +108,9 @@ def nestedsampling(lha,data,std,t):
 
 std=4
 mean=0
-a,phi,f,t=getval(2,0,4,0,4,2000)
-arr_sig,arr_a,arr_phi,arr_f=randomsignalarr(15,t)
+a,phi,f,t=getval(3,0,4,0,4,2000)
+arr_sig,arr_a,arr_f=randomsignalarr(100,t)
+print(arr_sig.shape)
 injn=noise(mean,std,len(t))
 injsig=signal(a,phi,f,t)
 data=injn+injsig
@@ -117,9 +124,9 @@ plt.ylabel('data/signal/noise')
 plt.legend()
 plt.show()
 
-lha=likelihoodarr(data,arr_sig,4)
-print(sorted(lha[:,-1]))
+lha=likelihoodarr(data,arr_sig,std)
+#print(sorted(lha[:,-1]))
 newsamplespace=nestedsampling(lha,data,std,t)
+#print(newsamplespace)
 
-
-joblib.dump((newsamplespace), "p") 
+joblib.dump((newsamplespace), "p1") 
