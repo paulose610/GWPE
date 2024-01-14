@@ -22,9 +22,9 @@ def noise(m,std,n):
 
 #alh parameters have uniform distribution--known priors
 '''
-P(a)=U[0,15]
+P(a)=U[0,10]
 P(phi)=U[0,2*pi]
-P(f)=U[5,75]
+P(f)=U[1,10]
 '''
 
 def randomparams(n):
@@ -47,6 +47,7 @@ def lh(d,s,std,n):
     lha=[]
     nn=np.array((d-s)**2)
     n1=len(nn[0])
+    print(n1)
     for i in range(n):
         r=np.sum(nn[i])
         lh=(-n1/2)*np.log(2*pi*(std**2))-(r/(2*(std**2)))
@@ -142,11 +143,12 @@ injsig=sig(f,phi,a,t)
 injn=noise(0,4,len(t))
 
 d=injsig+injn
-plt.plot(t,d, label='data')
+plt.plot(t,injn, label='noise')
 plt.plot(t, injsig, label='signal')
+plt.plot(t, d, label='data')
 plt.grid()
 plt.xlabel('time')
-plt.ylabel('data/signal')
+plt.ylabel('data/signal/noise')
 plt.legend()
 plt.show()
 
@@ -154,9 +156,9 @@ arr_a,arr_phi,arr_f=randomparams(50)
 
 arr_s=randomsignals(arr_f,arr_phi,arr_a,t)
       
-nn=lh(d,arr_s,2,len(arr_a))
+nn=lh(d,arr_s,4,len(arr_a))
 
-nss,arr_a,arr_phi,arr_f=nestedsampling(nn,d,t,2,arr_a,arr_phi,arr_f)
+nss,arr_a,arr_phi,arr_f=nestedsampling(nn,d,t,4,arr_a,arr_phi,arr_f)
 print("\n",nss)
 #nss=np.e**nss
 joblib.dump((arr_a, arr_f, arr_phi, nss), "var")   

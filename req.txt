@@ -2,3 +2,5 @@ matplotlib
 numpy
 corner
 joblib
+PyQt5
+scipy
